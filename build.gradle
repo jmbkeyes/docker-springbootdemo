@@ -1,0 +1,42 @@
+buildscript{
+	ext {
+		springBootVersion = '2.4.5.RELEASE'
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath('com.palantir.gradle.docker:gradle-docker:0.28.0')
+	}
+}
+
+plugins {
+	id 'org.springframework.boot' version '2.4.5'
+	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+	id 'java'
+
+}
+
+
+apply plugin: "com.palantir.docker"
+
+repositories {
+	mavenLocal()
+	maven{url "https://maven.aliyun.com/repository/public"}
+	mavenCentral()
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+dependencies {
+	implementation('org.springframework.boot:spring-boot-starter')
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+}
+
+docker {
+	dependsOn build
+	dockerfile file('Dockerfile') //DockerFile路径
+	name "${project.group}/${jar.baseName}"
+	files jar.archivePath
+	buildArgs(['JAR_FILE': "${jar.archiveName}"])
+}
